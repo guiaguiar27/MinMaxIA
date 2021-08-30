@@ -38,6 +38,20 @@ import threading
 #
 # @author Alcione
 # @version 1.0
+class Node: 
+    def __init__(self,value, TabGoMoku): 
+        self.value = value  
+        self.terminalFlag = False  # True or False   
+        self.TabGoMoku = TabGoMoku 
+
+    
+    # calcula a função de utilidade
+    def Utility_Function(self): 
+        pass 
+    # simula a jogada 
+    def PlaySim(self): 
+        pass
+
 
 
 class JogadorMinMax(Jogador):
@@ -48,6 +62,8 @@ class JogadorMinMax(Jogador):
         self.TEMPOMAXIMO = 1.0
         self.jogada = Jogada(-1, -1, -1, -1)
 
+
+
      # Calcula uma nova jogada para o tabuleiro e jogador corrente.
      # Aqui deve ser colocado o algoritmo com as t&eacute;cnicas de inteligencia
      # artificial. No momento as jogadas s&atilde;o calculadas apenas por crit&eacute;rio de
@@ -55,6 +71,7 @@ class JogadorMinMax(Jogador):
      # @param tab Tabuleiro corrente
      # @param jogadorCor Jogador corrente
      # @return retorna a jogada calculada.
+
 
     def calculaJogada(self, tab, jogadorCor):
         tempo1 = time.time()
@@ -73,10 +90,16 @@ class JogadorMinMax(Jogador):
         return self.jogada
 
     def max(self, tab, jogador, prof):
+        if 
         self.jogada = tab.obtemJogadaHeuristica(jogador)
 
+    def min(self, tab, jogador, prof): 
 
 if __name__ == "__main__":
     import sys
     JogadorMinMax(sys.argv[1]).joga()
     print("Fim")
+
+
+
+
