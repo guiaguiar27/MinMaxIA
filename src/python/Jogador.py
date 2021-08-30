@@ -79,13 +79,13 @@ class Jogador(ABC):
             linha = int(linhaLida[1])
             coluna = int(linhaLida[2])
 
-            oponente = self.tabuleiro.VERM if jogadorLido == self.tabuleiro.AZUL else self.tabuleiro.VERM
+            oponente = self.tabuleiro.VERM if jogadorLido == self.tabuleiro.AZUL else self.tabuleiro.AZUL
             nJogador = self.tabuleiro.cor[jogadorLido]
             nOponente = self.tabuleiro.cor[(jogadorLido + 1) % 2]
             while True:
                 if linha != -1:
                     sb = "Oponente: {} jogada({},{})".format(
-                        jogadorLido, linha, coluna)
+                        oponente, linha, coluna)
                     print(sb)
                     jtemp = Jogada(-1, -1, linha, coluna)
                     if not self.tabuleiro.move(oponente, jtemp):
