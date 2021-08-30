@@ -4,10 +4,11 @@
 
 from Jogador import Jogador
 from Jogada import Jogada
-from Tabuleiro import Tabuleiro
+from Tabuleiro import Tabuleiro 
+import TabuleiroGomoku 
 import time
 import threading
-
+PROFUNDIDADE = 1 
 # Esta Classe implementa o esqueleto de um jogador guloso.
 #
 # Ele se conecta no servidor do jogo  no host passado pela linha de argumentos e
@@ -39,18 +40,41 @@ import threading
 # @author Alcione
 # @version 1.0
 class Node: 
-    def __init__(self,value, TabGoMoku): 
+    def __init__(self,value, TabGoMoku, Jogador,Parent = None): 
         self.value = value  
-        self.terminalFlag = False  # True or False   
-        self.TabGoMoku = TabGoMoku 
-
+        self.terminalFlag = False  # True or False    
+        self.TabGoMoku = TabGoMoku   
+        self.Parent = Parent  
+        self.SelectChild = False # True se esse nó for a raiz da próxima árvore
+        self.Jogador = Jogador
+    
+    
     
     # calcula a função de utilidade
-    def Utility_Function(self): 
+    def Utility_Function(self,jogada): 
         pass 
-    # simula a jogada 
-    def PlaySim(self): 
-        pass
+    
+    # simula o tabuleiro com a jogada  
+    # faz o move    
+    def PlaySim(self,jogada): 
+       pass 
+    
+
+    def expand(self,parent):  
+        
+        # verificar todas possibilidades de jogada 
+        # Para cada possibilidade criar um novo nó
+        for i in self.TabGoMoku.obtemJogadasPossiveis(parent.Jogador):  
+            child = self.Gen_child(Parent,i)
+        pass 
+
+    def Gen_child(self,Parent, value, jogada): 
+        # tabuleiro
+        getTab = PlaySim(self,jogada)   
+
+        value = Utility_Function(self,jogada)
+        child = Node(self,value,getTab,Parent)
+        return child 
 
 
 
@@ -60,7 +84,8 @@ class JogadorMinMax(Jogador):
         Jogador.__init__(self, nome)
         self.MAXNIVEL = 10
         self.TEMPOMAXIMO = 1.0
-        self.jogada = Jogada(-1, -1, -1, -1)
+        self.jogada = Jogada(-1, -1, -1, -1) 
+
 
 
 
@@ -90,7 +115,7 @@ class JogadorMinMax(Jogador):
         return self.jogada
 
     def max(self, tab, jogador, prof):
-        if 
+        
         self.jogada = tab.obtemJogadaHeuristica(jogador)
 
     def min(self, tab, jogador, prof): 
