@@ -134,7 +134,7 @@ class Jogador(ABC):
         return self.tempoEspera
 
     @abstractmethod
-    def calculaJogada(tab, jogadorCor):
+    def calculaJogada(self, tab, jogadorCor):
         pass
 
     def setTempoEspera(self, tempoEspera):
@@ -144,5 +144,5 @@ class Jogador(ABC):
     # retorna o oponente.
     def oponente(self):
         if self.jogador == tabuleiro.AZUL:
-            return Tabuleiro.VERM
-        return Tabuleiro.AZUL
+            return tabuleiro.VERM
+        return tabuleiro.AZUL

@@ -56,7 +56,7 @@ class TabuleiroGoMoku(Tabuleiro):
 
     def copiaToTab(self, aTab):
         np.copyto(aTab, self.tab)
-        return atab
+        return aTab
 
     # Retorna uma copia do tabuleiro na forma de array.
     # retorna array com os valores
@@ -97,7 +97,7 @@ class TabuleiroGoMoku(Tabuleiro):
                 if self.tab[linha][coluna] != self.LIVRE:
                     if temosVencedor(linha, coluna):
                         return True
-        if self.obtemJogadasPossiveis(self.AZUL) != null or self.obtemJogadasPossiveis(self.VERM) != null:
+        if self.obtemJogadasPossiveis(self.AZUL) is not None or self.obtemJogadasPossiveis(self.VERM) is not None:
             return False
         return True
 
@@ -261,7 +261,7 @@ class TabuleiroGoMoku(Tabuleiro):
                     valor -= 2 * self.contaHeuristica(self.oponente(
                         jogador), linha, coluna, 1, 1, tab)
       #  imprimeTab(tab)
-        print("valor do tabuleiro: {} -- para jogador:{}".format(valor, jogador))
+        #print("valor do tabuleiro: {} -- para jogador:{}".format(valor, jogador))
         return valor
 
     # Conta o numero de pecas de um jogador a partir da posicao passada e na
@@ -338,7 +338,7 @@ class TabuleiroGoMoku(Tabuleiro):
 
         loBuff = "   "
         for i in range(0, self.DIM):
-            loBuff += string(i)+' '
+            loBuff += str(i)+' '
 
         loBuff += "\n"
         for linha in range(0, self.DIM):
