@@ -11,10 +11,10 @@ from Tabuleiro import Tabuleiro
 import time
 import threading
 from TabuleiroGoMoku import TabuleiroGoMoku 
-import numpy as np
+import numpy as np 
+import random 
 
-PROFUNDIDADE = 1 
-MAX_DEPTH = 4
+PROFUNDIDADE = 1
 
 
 class Heuristica:
@@ -66,6 +66,10 @@ class Node:
     def __str__(self):
         return f"Depth: {self.depth}, Heuristic:{self.value}"
 
+
+
+
+
 class JogadorMinMax(Jogador):
 
     def __init__(self, nome,tab):
@@ -88,9 +92,10 @@ class JogadorMinMax(Jogador):
         tempo1 = time.time()
         usado = 0.0
         for prof in range(1, self.MAXNIVEL):
+            
             tempo2 = time.time()
             t1 = threading.Thread(
-                target=self.max, args=(tab, jogadorCor, prof,))
+                target=self.setup, args=(tab, jogadorCor,prof,))
             t1.start()
             t1.join(self.TEMPOMAXIMO - usado)
             usado = tempo2 - tempo1
@@ -100,10 +105,12 @@ class JogadorMinMax(Jogador):
 
         return self.jogada 
     
-    #root = Node(Jogador, -1, tab, None, 0)  
+    def funcao_utilidade(self,jogador,tab):  
+        oponente = (jogador + 1) % 2 
 
-    def funcao_utilidade(self,tab): 
-        pass  
+        value_jogador =  tab.heuristicaBasica(jogador,tab) 
+        value_oponente = tab.heuristicaBasica(oponente,tab) 
+        return value_jogador - value_oponente
     
     def play(self,tab, jogada, jogador): 
         child_tab = TabuleiroGoMoku()
@@ -112,8 +119,19 @@ class JogadorMinMax(Jogador):
         
         return child_tab  
     
-    def setup(self,jogador,tab,prof):  
+    def setup(self,tab,jogador,prof):  
         depth = 1  
+        Best_Score = -np.inf 
+        Best_Move = Jogada(-1, -1, -1, -1) 
+
+        for jogada in tab.obtemJogadasPossiveis(jogador): 
+                Genchild = self.play(tab,jogada,jogador) 
+                value = self.minDec(Genchild,jogador,depth,prof)  
+                if value > Best_Score: 
+                    Best_Move = jogada 
+                    Best_Score = value 
+        self.jogada = Best_Move
+
         # inicializar as jogadas que serao decididas no minmax
 
 
@@ -122,29 +140,29 @@ class JogadorMinMax(Jogador):
   
 
     # funcão de decisao
-    def maxDec(self, tab, jogador, depth): 
+    def maxDec(self, tab, jogador, depth, MaxDepth): 
     
-        if(depth == MAX_DEPTH): 
-            return funcao_utilidade(tab)
-        max_value = -np.inf 
+        if(depth == MaxDepth): 
+            return funcao_utilidade(jogador,tab)
+        max_value = -np.inf  
+
         for i in tab.obtemJogadasPossiveis(jogador): 
         
-            child_tab = self.play(tab, i,jogador)
-            max_value = max(max_value,self.minDec(self.play(tab, i,jogador),depth+1)) 
-        
+            child_tab = self.play(tab, i,jogador) 
+            max_value = max(max_value,self.minDec(self.play(tab, i,jogador),depth+1,MaxDepth)) 
         return max_value
 
-    def minDec(self, tab, jogador, depth):
+    def minDec(self, tab, jogador, depth,MaxDepth):
         
-        if(depth == MAX_DEPTH): 
-            return funcao_utilidade(tab) 
+        if(depth == MaxDepth): 
+            return funcao_utilidade(jogador,tab) 
 
         min_value = np.inf
         oponente = (jogador + 1) % 2
         for i in tab.obtemJogadasPossiveis(oponente): 
         
             child_tab = self.play(tab,i,oponente) 
-            min_value = min(min_value, self.maxDec(self.play(tab, i,jogador),+1))  
+            min_value = min(min_value, self.maxDec(self.play(tab, i,jogador),+1,MaxDepth))  
         
         return min_value
 
