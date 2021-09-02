@@ -1,4 +1,3 @@
-
 # Jogador
 #
 # Created on 19 de Marco de 2001, 08:28
@@ -102,7 +101,7 @@ class Jogador(ABC):
                 if jog != None:
                     sb = "Eu: {} jogada({},{})".format(
                         nJogador, jog.getLinha(), jog.getColuna())
-                    print(sb)
+                    # print(sb)
                     self.tabuleiro.move(jogadorLido, jog)
                     self.tabuleiro.imprimeTab(self.tabuleiro.getTab())
 
