@@ -85,7 +85,7 @@ class Jogador(ABC):
             while True:
                 if linha != -1:
                     sb = "Oponente: {} jogada({},{})".format(
-                        oponente, linha, coluna)
+                        self.tabuleiro.cor[oponente], linha, coluna)
                     print(sb)
                     jtemp = Jogada(-1, -1, linha, coluna)
                     if not self.tabuleiro.move(oponente, jtemp):
@@ -93,7 +93,7 @@ class Jogador(ABC):
 
                 print("Vou calcular jogada!")
                 jog = self.calculaJogada(self.tabuleiro, jogadorLido)
-                self.tabuleiro.imprimeTab(self.tabuleiro.getTab())
+                #self.tabuleiro.imprimeTab(self.tabuleiro.getTab())
 
                 if jog == None:
                     print("Jogada Nula!")
@@ -104,7 +104,7 @@ class Jogador(ABC):
                         nJogador, jog.getLinha(), jog.getColuna())
                     print(sb)
                     self.tabuleiro.move(jogadorLido, jog)
-                    self.tabuleiro.imprimeTab(self.tabuleiro.getTab())
+                    #self.tabuleiro.imprimeTab(self.tabuleiro.getTab())
 
                     sb = "{}\n{}\n".format(jog.getLinha(), jog.getColuna())
                     clisoc.sendall(bytes(sb, 'ascii'))

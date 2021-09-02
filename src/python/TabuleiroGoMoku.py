@@ -311,7 +311,13 @@ class TabuleiroGoMoku(Tabuleiro):
         elif ct == 5:
             ct = 100
         elif ct == 4:
-            ct = 50
+            ct = 50 
+        elif ct == 3: 
+            ct = 25 
+        elif ct == 2: 
+            ct = 15  
+        elif ct == 1: 
+            ct = 5 
         return ct
 
     # Chamado apos uma jogada para verificar se resultou em um ganhador

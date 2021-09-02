@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from typing import List
-
+ 
 from Jogador import Jogador
 from Jogada import Jogada
 from Tabuleiro import Tabuleiro
@@ -23,7 +23,7 @@ class JogadorMinMax(Jogador):
         self.TEMPOMAXIMO = 1.0
         self.jogada = Jogada(-1, -1, -1, -1)
 
-        # Calcula uma nova jogada para o tabuleiro e jogador corrente.
+        # Calcula uma nova jogada para o tabuleiroe jogador corrente.
 
     # Aqui deve ser colocado o algoritmo com as t&eacute;cnicas de inteligencia
     # artificial. No momento as jogadas s&atilde;o calculadas apenas por crit&eacute;rio de
@@ -34,16 +34,20 @@ class JogadorMinMax(Jogador):
 
     def calculaJogada(self, tab, jogadorCor):
         tempo1 = time.time()
-        usado = 0.0
+        usado = 0.0 
+        #tab.imprimeTab(tab.getTab()) 
+        self.jogada = Jogada(-1, -1, -1, -1)
         for prof in range(1, self.MAXNIVEL):
-            
-            tempo2 = time.time()
             t1 = threading.Thread(
                 target=self.setup, args=(tab, jogadorCor,prof,))
             t1.start()
             t1.join(self.TEMPOMAXIMO - usado)
+            tempo2 = time.time()
             usado = tempo2 - tempo1
-            print("tempo usado:", usado)
+            print("tempo usado:", usado) 
+            print("Profundidade:",prof)   
+            print("linha: {} coluna:{}".format(self.jogada.getLinha(), self.jogada.getColuna()))
+
             if usado >= self.TEMPOMAXIMO:
                 break
 
@@ -60,33 +64,27 @@ class JogadorMinMax(Jogador):
     # realiza o movimento da jogada selecionada no tabuleiro 
     def play(self,tab, jogada, jogador): 
         child_tab = TabuleiroGoMoku()
-        child_tab.copiaTab(tab.getTab())
+        
+        child_tab.copiaTab(tab.getTab()) 
         child_tab.move(jogador, jogada)  
         
         return child_tab  
     # inicia a arvore para o algoritmo minmax
-    def setup(self,tab,jogador,prof):  
+    def setup(self,tab,jogador,prof):   
+        print("---------FUCK")
         depth = 1  
-        Best_Score = -np.inf 
-        Best_Move = Jogada(-1, -1, -1, -1) 
+        Best_Score = -np.inf  
+        Beta = np.inf 
 
         for jogada in tab.obtemJogadasPossiveis(jogador): 
                 Genchild = self.play(tab,jogada,jogador) 
-                value = self.minDec(Genchild,jogador,depth,prof)  
+                value = self.minDec(Genchild,jogador,depth,prof,Best_Score,Beta)  
                 if value > Best_Score: 
-                    Best_Move = jogada 
-                    Best_Score = value 
-        self.jogada = Best_Move
-
-        # inicializar as jogadas que serao decididas no minmax
-
-
-
-        
-  
-
+                    self.jogada = jogada 
+                    Best_Score = value  
+        print("**Best Score: ",Best_Score) 
     # funcão de decisao
-    def maxDec(self, tab, jogador, depth, MaxDepth): 
+    def maxDec(self, tab, jogador, depth, MaxDepth, alpha,beta): 
     
         if(depth == MaxDepth): 
             return self.funcao_utilidade(jogador,tab)
@@ -95,10 +93,13 @@ class JogadorMinMax(Jogador):
         for i in tab.obtemJogadasPossiveis(jogador): 
         
             child_tab = self.play(tab, i,jogador) 
-            max_value = max(max_value,self.minDec(child_tab,jogador,depth+1,MaxDepth)) 
+            max_value = max(max_value,self.minDec(child_tab,jogador,depth+1,MaxDepth,alpha,beta))  
+            if max_value >= beta:
+                return max_value 
+            alpha = max(alpha, max_value)
         return max_value
 
-    def minDec(self, tab, jogador, depth,MaxDepth):
+    def minDec(self, tab, jogador, depth,MaxDepth,alpha,beta):
         
         if(depth == MaxDepth): 
             return self.funcao_utilidade(jogador,tab) 
@@ -108,8 +109,11 @@ class JogadorMinMax(Jogador):
         for i in tab.obtemJogadasPossiveis(oponente): 
         
             child_tab = self.play(tab,i,oponente) 
-            min_value = min(min_value, self.maxDec(child_tab,jogador,depth+1,MaxDepth))  
-        
+            min_value = min(min_value, self.maxDec(child_tab,jogador,depth+1,MaxDepth,alpha,beta))  
+            if min_value <= alpha:
+                return min_value 
+            
+            beta = min(beta, min_value)
         return min_value
 
 
