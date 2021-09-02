@@ -19,7 +19,7 @@ class JogadorMinMax(Jogador):
 
     def __init__(self, nome):
         Jogador.__init__(self, nome)
-        self.MAXNIVEL = 3
+        self.MAXNIVEL = 10
         self.TEMPOMAXIMO = 1.0
         self.jogada = Jogada(-1, -1, -1, -1)
 
@@ -57,8 +57,8 @@ class JogadorMinMax(Jogador):
         oponente = (jogador + 1) % 2 
 
         value_jogador =  tab.heuristicaBasica(jogador,tab.getTab()) 
-        value_oponente = tab.heuristicaBasica(oponente,tab.getTab()) 
-        return value_jogador - value_oponente
+        #value_oponente = tab.heuristicaBasica(oponente,tab.getTab()) 
+        return value_jogador #- value_oponente
     
     
     # realiza o movimento da jogada selecionada no tabuleiro 
