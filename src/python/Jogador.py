@@ -1,4 +1,3 @@
-
 # Jogador
 #
 # Created on 19 de Marco de 2001, 08:28
@@ -83,6 +82,7 @@ class Jogador(ABC):
             nJogador = self.tabuleiro.cor[jogadorLido]
             nOponente = self.tabuleiro.cor[(jogadorLido + 1) % 2]
             while True:
+                print("------------NOVO ROUND------------")
                 if linha != -1:
                     sb = "Oponente: {} jogada({},{})".format(
                         self.tabuleiro.cor[oponente], linha, coluna)
@@ -91,26 +91,26 @@ class Jogador(ABC):
                     if not self.tabuleiro.move(oponente, jtemp):
                         print("Jogada Invalida!!")
 
-                print("Vou calcular jogada!")
                 jog = self.calculaJogada(self.tabuleiro, jogadorLido)
-                #self.tabuleiro.imprimeTab(self.tabuleiro.getTab())
 
-                if jog == None:
-                    print("Jogada Nula!")
-                else:
-                    print("Jogada Boa!")
+                # if jog == None:
+                #     print("Jogada Nula!")
+                # else:
+                #     print("Jogada Boa!")
+
                 if jog != None:
                     sb = "Eu: {} jogada({},{})".format(
                         nJogador, jog.getLinha(), jog.getColuna())
                     print(sb)
                     self.tabuleiro.move(jogadorLido, jog)
-                    #self.tabuleiro.imprimeTab(self.tabuleiro.getTab())
+                    # self.tabuleiro.imprimeTab(self.tabuleiro.getTab())
 
                     sb = "{}\n{}\n".format(jog.getLinha(), jog.getColuna())
                     clisoc.sendall(bytes(sb, 'ascii'))
-                    print("enviando:" + sb)
+                    print("enviando: {}-{}".format(jog.getLinha(), jog.getColuna()))
                 else:
                     clisoc.sendall(bytes("-1\n-1\n", 'ascii'))
+                print("------------FIM ROUND------------\n\n")
                 linhaLida = clisoc.recv(1024).decode('utf-8').split('\n')
                 if linhaLida[0] == '#':
                     print("recebido #")
