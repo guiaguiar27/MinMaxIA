@@ -252,13 +252,13 @@ class TabuleiroGoMoku(Tabuleiro):
                         return 10000
                     valor += temp
                 elif tab[linha][coluna] != self.LIVRE:
-                    valor -= 2 * self.contaHeuristica(self.oponente(
+                    valor -= 4 * self.contaHeuristica(self.oponente(
                         jogador), linha, coluna, 1, 0, tab)
-                    valor -= 2 * self.contaHeuristica(self.oponente(
+                    valor -= 4 * self.contaHeuristica(self.oponente(
                         jogador), linha, coluna, 0, 1, tab)
-                    valor -= 2 * self.contaHeuristica(self.oponente(
+                    valor -= 4 * self.contaHeuristica(self.oponente(
                         jogador), linha, coluna, 1, -1, tab)
-                    valor -= 2 * self.contaHeuristica(self.oponente(
+                    valor -= 4 * self.contaHeuristica(self.oponente(
                         jogador), linha, coluna, 1, 1, tab)
       #  imprimeTab(tab)
         #print("valor do tabuleiro: {} -- para jogador:{}".format(valor, jogador))
@@ -308,16 +308,22 @@ class TabuleiroGoMoku(Tabuleiro):
         # Verifica se esta bloqueado e nao pode fechar essa linha
         if (ct < 5 and boqueadoPonta1 and boqueadoPonta2):
             ct = 0
-        elif ct == 5:
+        elif ct == 5 or (ct == 4 and not boqueadoPonta1 and not boqueadoPonta2):
             ct = 100
-        elif ct == 4:
+        elif (ct == 4 and boqueadoPonta1 and not boqueadoPonta2) or (ct == 4 and not boqueadoPonta1 and boqueadoPonta2):
+            ct = 90 
+        elif ct == 3 and not boqueadoPonta1 and not boqueadoPonta2: 
+            ct = 75 
+        elif (ct == 3 and boqueadoPonta1 and not boqueadoPonta2) or (ct == 3 and not boqueadoPonta1 and boqueadoPonta2):
             ct = 50 
-        elif ct == 3: 
+        elif ct == 2 and not boqueadoPonta1 and not boqueadoPonta2: 
             ct = 25 
-        elif ct == 2: 
+        elif (ct == 2 and boqueadoPonta1 and not boqueadoPonta2) or (ct == 2 and not boqueadoPonta1 and boqueadoPonta2):
             ct = 15  
-        elif ct == 1: 
-            ct = 5 
+        elif ct == 1 and not boqueadoPonta1 and not boqueadoPonta2: 
+            ct = 10 
+        elif (ct == 1 and boqueadoPonta1 and not boqueadoPonta2) or (ct == 1 and not boqueadoPonta1 and boqueadoPonta2):
+            ct = 5
         return ct
 
     # Chamado apos uma jogada para verificar se resultou em um ganhador
