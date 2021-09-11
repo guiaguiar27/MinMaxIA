@@ -1,10 +1,7 @@
 # Jogador
 # Created on 11 de Junho de 2021
-
 from __future__ import annotations
-
 from typing import List
-
 from Jogador import Jogador
 from Jogada import Jogada
 from Tabuleiro import Tabuleiro
@@ -14,17 +11,6 @@ from TabuleiroGoMoku import TabuleiroGoMoku
 import numpy as np
 
 
-def play(tab, jogada, jogador):
-    """
-    Realiza um movimento em uma copia do tabuleiro passado
-    :rtype: TabuleiroGoMoku
-    """
-    child_tab = TabuleiroGoMoku()
-    child_tab.copiaTab(tab.getTab())
-    child_tab.move(jogador, jogada)
-    return child_tab
-
-
 class JogadorMinMax(Jogador):
     MAXNIVEL = 10
     TEMPOMAXIMO = 1.0
@@ -32,6 +18,7 @@ class JogadorMinMax(Jogador):
     def __init__(self, nome):
         Jogador.__init__(self, nome)
         self.jogada = Jogada(-1, -1, -1, -1)
+        self.jogadas_possiveis = []
 
         # Calcula uma nova jogada para o tabuleiroe jogador corrente.
 
@@ -39,7 +26,7 @@ class JogadorMinMax(Jogador):
         tempo1 = time.time()
         usado = 0.0
         self.jogada = Jogada(-1, -1, -1, -1)
-
+        self.jogadas_possiveis = tab.obtemJogadasPossiveis(jogadorCor)
         for prof in range(1, self.MAXNIVEL):
             t1 = threading.Thread(
                 target=self.setup, args=(tab, jogadorCor, prof))
@@ -53,29 +40,44 @@ class JogadorMinMax(Jogador):
 
         return self.jogada
 
-    # @staticmethod
+
+    def play(self, tab, jogada, jogador):
+        """
+            Realiza um movimento em uma copia do tabuleiro passado
+            :rtype: TabuleiroGoMoku
+        """
+        child_tab = TabuleiroGoMoku()
+        child_tab.copiaTab(tab.getTab())
+        child_tab.move(jogador, jogada)
+        return child_tab
+
+
     def funcaoUtilidade(self, jogador, tab):
         value_jogador = self.heuristicaBasica(jogador, tab.getTab(), tab)
         return value_jogador
 
+
+   
     def setup(self, tab: TabuleiroGoMoku, jogador: int, prof: int):
         """
-        Inicia a arvore para o algoritmo minmax
+            Inicia a arvore para o algoritmo minmax
+            :param tab:
+            :param jogador:
+            :param prof: Profundidade maxima do busca em profundidade interativa
+        """   
 
-        :param tab:
-        :param jogador:
-        :param prof: Profundidade maxima do busca em profundidade interativa
-        """
         depth = 1
         best_score = -np.inf
         beta = np.inf
 
-        for jogada in tab.obtemJogadasPossiveis(jogador):
-            genchild = play(tab, jogada, jogador)
+        for jogada in self.jogadas_possiveis:
+            genchild = self.play(tab, jogada, jogador)
             value = self.minDec(genchild, jogador, depth, prof, best_score, beta)
             if value > best_score:
                 self.jogada = jogada
-                best_score = value
+                best_score = value 
+
+
 
     def maxDec(self, tab: TabuleiroGoMoku, jogador: int, depth: int, max_depth: int, alpha: float, beta: float) -> int:
         if depth == max_depth:
@@ -83,7 +85,7 @@ class JogadorMinMax(Jogador):
 
         max_value = -np.inf
         for i in tab.obtemJogadasPossiveis(jogador):
-            child_tab = play(tab, i, jogador)
+            child_tab = self.play(tab, i, jogador)
             max_value = max(max_value, self.minDec(child_tab, jogador, depth + 1, max_depth, alpha, beta))
 
             if max_value >= beta:
@@ -99,7 +101,7 @@ class JogadorMinMax(Jogador):
         min_value = np.inf
         oponente = (jogador + 1) % 2
         for i in tab.obtemJogadasPossiveis(oponente):
-            child_tab = play(tab, i, oponente)
+            child_tab = self.play(tab, i, oponente)
             min_value = min(min_value, self.maxDec(child_tab, jogador, depth + 1, max_depth, alpha, beta))
 
             if min_value <= alpha:
@@ -112,7 +114,8 @@ class JogadorMinMax(Jogador):
     # Retorna um valor heuristico para o tabuleiro dado um jogador
     # param jogador numero do jogador
     # param tab tabuleiro
-    # retorna valor do tabuleiro
+    # retorna valor do tabuleiro 
+
     def heuristicaBasica(self, jogador, tab, objTab):
         valor = 0
         for linha in range(0, objTab.DIM):
@@ -139,13 +142,13 @@ class JogadorMinMax(Jogador):
                         return 10000
                     valor += temp
                 elif tab[linha][coluna] != objTab.LIVRE:
-                    valor -= 4 * self.contaHeuristica(objTab.oponente(
+                    valor -= 5 * self.contaHeuristica(objTab.oponente(
                         jogador), linha, coluna, 1, 0, tab, objTab)
-                    valor -= 4 * self.contaHeuristica(objTab.oponente(
+                    valor -= 5 * self.contaHeuristica(objTab.oponente(
                         jogador), linha, coluna, 0, 1, tab, objTab)
-                    valor -= 4 * self.contaHeuristica(objTab.oponente(
+                    valor -= 5 * self.contaHeuristica(objTab.oponente(
                         jogador), linha, coluna, 1, -1, tab, objTab)
-                    valor -= 4 * self.contaHeuristica(objTab.oponente(
+                    valor -= 5 * self.contaHeuristica(objTab.oponente(
                         jogador), linha, coluna, 1, 1, tab, objTab)
         return valor
 
@@ -164,12 +167,9 @@ class JogadorMinMax(Jogador):
             col += dirY
 
         # verifica se fechou a ponta
-        if (objTab.saiuTabuleiro(lin, col) or tab[lin][col] != objTab.LIVRE):
+        if objTab.saiuTabuleiro(lin, col) or tab[lin][col] != objTab.LIVRE:
             boqueadoPonta1 = True
 
-        # self.win_r1 = lin - dirX  # Quadrado anterior.
-        # Quadrado nao esta no tabuleiro ou contem uma peca do jogador.
-        # self.win_c1 = col - dirY
 
         lin = lin - dirX  # Olhe na direcao oposta.
         col = col - dirY
@@ -182,11 +182,8 @@ class JogadorMinMax(Jogador):
             col -= dirY
 
          # verifica se fechou a ponta
-        if (objTab.saiuTabuleiro(lin, col) or tab[lin][col] != objTab.LIVRE):
+        if objTab.saiuTabuleiro(lin, col) or tab[lin][col] != objTab.LIVRE:
             boqueadoPonta2 = True
-
-        # self.win_r2 = lin + dirX
-        # self.win_c2 = col + dirY
 
         # Neste ponto, (win_r1,win_c1) e (win_r2,win_c2) marcam as extremidades
         # da linha que pertence ao jogador.
