@@ -40,8 +40,8 @@ class JogadorMinMax(Jogador):
 
         return self.jogada
 
-
-    def play(self, tab, jogada, jogador):
+    @staticmethod
+    def play(tab, jogada, jogador):
         """
             Realiza um movimento em uma copia do tabuleiro passado
             :rtype: TabuleiroGoMoku
@@ -51,20 +51,17 @@ class JogadorMinMax(Jogador):
         child_tab.move(jogador, jogada)
         return child_tab
 
-
     def funcaoUtilidade(self, jogador, tab):
         value_jogador = self.heuristicaBasica(jogador, tab.getTab(), tab)
         return value_jogador
 
-
-   
     def setup(self, tab: TabuleiroGoMoku, jogador: int, prof: int):
         """
             Inicia a arvore para o algoritmo minmax
             :param tab:
             :param jogador:
             :param prof: Profundidade maxima do busca em profundidade interativa
-        """   
+        """
 
         depth = 1
         best_score = -np.inf
@@ -75,9 +72,7 @@ class JogadorMinMax(Jogador):
             value = self.minDec(genchild, jogador, depth, prof, best_score, beta)
             if value > best_score:
                 self.jogada = jogada
-                best_score = value 
-
-
+                best_score = value
 
     def maxDec(self, tab: TabuleiroGoMoku, jogador: int, depth: int, max_depth: int, alpha: float, beta: float) -> int:
         if depth == max_depth:
@@ -109,14 +104,16 @@ class JogadorMinMax(Jogador):
             beta = min(beta, min_value)
 
         return min_value
-    
-    # Copiamos a função de TabuleiroGoMoku.py para aumentar o ponto negativo do oponente
-    # Retorna um valor heuristico para o tabuleiro dado um jogador
-    # param jogador numero do jogador
-    # param tab tabuleiro
-    # retorna valor do tabuleiro 
 
     def heuristicaBasica(self, jogador, tab, objTab):
+        """
+        Copiamos a função de TabuleiroGoMoku.py para aumentar o ponto negativo do oponente
+        Retorna um valor heuristico para o tabuleiro dado um jogador
+
+        :param jogador numero do jogador
+        :param tab tabuleiro
+        :return valor do tabuleiro
+        """
         valor = 0
         for linha in range(0, objTab.DIM):
             for coluna in range(0, objTab.DIM):
@@ -141,6 +138,7 @@ class JogadorMinMax(Jogador):
                     if temp == 100:
                         return 10000
                     valor += temp
+
                 elif tab[linha][coluna] != objTab.LIVRE:
                     valor -= 5 * self.contaHeuristica(objTab.oponente(
                         jogador), linha, coluna, 1, 0, tab, objTab)
@@ -152,60 +150,59 @@ class JogadorMinMax(Jogador):
                         jogador), linha, coluna, 1, 1, tab, objTab)
         return valor
 
-    # Copiamos a função de TabuleiroGoMoku.py para ampliarmos as possibilidades
-    # Conta o numero de pecas de um jogador a partir da posicao passada e na
-    # direcao especificada levando em consideracao a vantagem. Os valores da
-    # direcao definida por dirX e dirY devem ser 0, 1, or -1, sendo que um
-    # deles deve ser diferente de zero.
-    def contaHeuristica(self, jogador, linha, coluna, dirX, dirY, tab, objTab):
-        boqueadoPonta1 = boqueadoPonta2 = False
-        lin = linha + dirX  # define a direcao .
-        col = coluna + dirY
-        while (not objTab.saiuTabuleiro(lin, col) and tab[lin][col] == jogador):
+    @staticmethod
+    def contaHeuristica(jogador, linha, coluna, dir_x, dir_y, tab, obj_tab):
+        """
+        Copiamos a função de TabuleiroGoMoku.py para ampliarmos as possibilidades
+        Conta o numero de pecas de um jogador a partir da posicao passada e na
+        direcao especificada levando em consideracao a vantagem. Os valores da
+        direcao definida por dirX e dirY devem ser 0, 1, or -1, sendo que um
+        deles deve ser diferente de zero.
+        """
+        boqueado_ponta1 = boqueado_ponta2 = False
+        lin = linha + dir_x  # define a direcao .
+        col = coluna + dir_y
+        while not obj_tab.saiuTabuleiro(lin, col) and tab[lin][col] == jogador:
             # Quadrado esta no tabuleiro e contem uma peca do jogador.
-            lin += dirX  # Va para o proximo.
-            col += dirY
+            lin += dir_x  # Va para o proximo.
+            col += dir_y
 
         # verifica se fechou a ponta
-        if objTab.saiuTabuleiro(lin, col) or tab[lin][col] != objTab.LIVRE:
-            boqueadoPonta1 = True
+        if obj_tab.saiuTabuleiro(lin, col) or tab[lin][col] != obj_tab.LIVRE:
+            boqueado_ponta1 = True
 
-
-        lin = lin - dirX  # Olhe na direcao oposta.
-        col = col - dirY
+        lin = lin - dir_x  # Olhe na direcao oposta.
+        col = col - dir_y
 
         ct = 0  # Numero de pecas em linha de um jogador.
-        while (not objTab.saiuTabuleiro(lin, col) and tab[lin][col] == jogador):
+        while not obj_tab.saiuTabuleiro(lin, col) and tab[lin][col] == jogador:
             # Quadrado esta no tabuleiro e contem uma peca do jogador.
             ct += 1
-            lin -= dirX   # Va para o proximo.
-            col -= dirY
+            lin -= dir_x  # Va para o proximo.
+            col -= dir_y
 
-         # verifica se fechou a ponta
-        if objTab.saiuTabuleiro(lin, col) or tab[lin][col] != objTab.LIVRE:
-            boqueadoPonta2 = True
-
-        # Neste ponto, (win_r1,win_c1) e (win_r2,win_c2) marcam as extremidades
-        # da linha que pertence ao jogador.
+        # verifica se fechou a ponta
+        if obj_tab.saiuTabuleiro(lin, col) or tab[lin][col] != obj_tab.LIVRE:
+            boqueado_ponta2 = True
 
         # Verifica se esta bloqueado e nao pode fechar essa linha
-        if (ct < 5 and boqueadoPonta1 and boqueadoPonta2):
+        if ct < 5 and boqueado_ponta1 and boqueado_ponta2:
             ct = 0
-        elif ct == 5 or (ct == 4 and not boqueadoPonta1 and not boqueadoPonta2):
+        elif ct == 5 or (ct == 4 and not boqueado_ponta1 and not boqueado_ponta2):
             ct = 100
-        elif (ct == 4 and boqueadoPonta1 and not boqueadoPonta2) or (ct == 4 and not boqueadoPonta1 and boqueadoPonta2):
-            ct = 90 
-        elif ct == 3 and not boqueadoPonta1 and not boqueadoPonta2: 
-            ct = 75 
-        elif (ct == 3 and boqueadoPonta1 and not boqueadoPonta2) or (ct == 3 and not boqueadoPonta1 and boqueadoPonta2):
-            ct = 50 
-        elif ct == 2 and not boqueadoPonta1 and not boqueadoPonta2: 
-            ct = 25 
-        elif (ct == 2 and boqueadoPonta1 and not boqueadoPonta2) or (ct == 2 and not boqueadoPonta1 and boqueadoPonta2):
-            ct = 15  
-        elif ct == 1 and not boqueadoPonta1 and not boqueadoPonta2: 
-            ct = 10 
-        elif (ct == 1 and boqueadoPonta1 and not boqueadoPonta2) or (ct == 1 and not boqueadoPonta1 and boqueadoPonta2):
+        elif (ct == 4 and boqueado_ponta1 and not boqueado_ponta2) or (ct == 4 and not boqueado_ponta1 and boqueado_ponta2):
+            ct = 90
+        elif ct == 3 and not boqueado_ponta1 and not boqueado_ponta2:
+            ct = 75
+        elif (ct == 3 and boqueado_ponta1 and not boqueado_ponta2) or (ct == 3 and not boqueado_ponta1 and boqueado_ponta2):
+            ct = 50
+        elif ct == 2 and not boqueado_ponta1 and not boqueado_ponta2:
+            ct = 25
+        elif (ct == 2 and boqueado_ponta1 and not boqueado_ponta2) or (ct == 2 and not boqueado_ponta1 and boqueado_ponta2):
+            ct = 15
+        elif ct == 1 and not boqueado_ponta1 and not boqueado_ponta2:
+            ct = 10
+        elif (ct == 1 and boqueado_ponta1 and not boqueado_ponta2) or (ct == 1 and not boqueado_ponta1 and boqueado_ponta2):
             ct = 5
         return ct
 
